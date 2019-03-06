@@ -1,0 +1,69 @@
+KEYB_INJ.PRG - A key press injection utility for TOS 1.x
+(C) 2019 Christian Zietz <czietz@gmx.net>
+
+Sometimes an application or driver needs to input key press and release 
+events as if they were coming from the Atari keyboard itself. TOS 
+versions 2 and above as well as EmuTOS provide an API for this task;
+however, Atari TOS 1.x does not.
+
+KEYB_INJ.PRG is a utility to provide such applications the address within 
+TOS 1.x which handles keyboard events.
+
+
+- GUIDE FOR USERS -
+
+Place KEYB_INJ.PRG in your AUTO folder. Make sure to sort the folder in 
+such a way that KEYB_INJ.PRG is run before any drivers that need it.
+Note: If no cookie jar exists, KEYB_INJ.PRG creates its own, which can 
+also be used by other programs. Therefore, if your AUTO folder contains a 
+program solely to create a cookie jar, you can remove it when using 
+KEYB_INJ.PRG.
+
+
+- GUIDE FOR DEVELOPERS -
+
+KEYB_INJ.PRG sets the 'KINJ' cookie to the address of a routine within 
+TOS that can be called similarly as the 'kbdvec' vector available via the 
+Kbdvbase() XBIOS call since TOS 2, with the additional requirement that the 
+A5 register is zeroed.
+
+In pseudo code:
+
+At the start of a program:
+    if TOS version >= 2 or EmuTOS detected:
+        ; "negative 1" entry from array returned by Kbdvbase()
+        vector = Kbdvbase()[-1]
+    else if 'KINJ' cookie detected:
+        vector = value of 'KINJ' cookie
+    else:
+        Fail
+
+To inject a key press or release event:
+    Save all registers
+    Register A0 = Iorec(1)
+    Register D0 = Scancode (or scancode+0x80 for release)
+    Register A5 = 0
+    Call vector with JSR
+    Restore all registers
+
+- LICENSE -
+
+Copyright (c) 2019 Christian Zietz <czietz@gmx.net>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
