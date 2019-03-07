@@ -111,8 +111,15 @@ readkey:move.w	#2,-(sp)				| Bconin
 		bra		finish
 readok:	pea		test_passed
 
-finish:									| Cconws
-		move.w	#9,-(sp)
+finish:	
+		move.l	(sp),-(sp)				| Duplicate message
+		move.w	#0xF000,-(sp)			| DB_NULLSTRING
+		move.w	#5,-(sp)
+		move.w	#11,-(sp)				| Dbmsg
+		trap	#14
+		lea		10(sp),sp
+
+		move.w	#9,-(sp)				| Cconws
 		trap	#1
 		addq.l	#6,sp
 
