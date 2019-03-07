@@ -112,12 +112,16 @@ readkey:move.w	#2,-(sp)				| Bconin
 readok:	pea		test_passed
 
 finish:	
-		move.l	(sp),-(sp)				| Duplicate message
-		move.w	#0xF000,-(sp)			| DB_NULLSTRING
-		move.w	#5,-(sp)
-		move.w	#11,-(sp)				| Dbmsg
+		move.l	(sp),a0					| message
+strlen:	tst.b	(a0)+
+		bne		strlen
+		sub.l	(sp),a0
+		sub.l	#2,a0
+		move.l	(sp),-(sp)				| Midiws
+		move.w	a0,-(sp)
+		move.w	#12,-(sp)
 		trap	#14
-		lea		10(sp),sp
+		addq.l	#8,sp
 
 		move.w	#9,-(sp)				| Cconws
 		trap	#1
